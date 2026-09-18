@@ -127,20 +127,21 @@ export default function Portfolio() {
 
   return (
     <section className="px-6 max-w-7xl mx-auto flex flex-col">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-6 md:gap-8">
         <div>
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-white">Selected Works</h2>
-          <p className="text-zinc-500 mt-4 max-w-md font-medium">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tighter text-white">Selected Works</h2>
+          <p className="text-zinc-500 mt-3 md:mt-4 max-w-md font-medium text-sm md:text-base">
             Showcasing high-performance digital products & immersive experiences.
           </p>
         </div>
 
-        <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 backdrop-blur-sm">
+        {/* FIX: scrollable on very narrow screens instead of wrapping/squeezing */}
+        <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 backdrop-blur-sm overflow-x-auto max-w-full">
           {["All", "Web", "VR", "AR"].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-6 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all ${
+              className={`px-5 md:px-6 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all whitespace-nowrap ${
                 filter === tab ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"
               }`}
             >
@@ -150,17 +151,26 @@ export default function Portfolio() {
         </div>
       </div>
 
-      <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project) => (
-            <motion.div
+            // FIX: seluruh card sekarang jadi <a> (bukan cuma icon kecil di pojok).
+            // Sebelumnya klik hanya kena kalau tepat di icon ExternalLink, dan pas
+            // filter selain "All" dipilih, card yang lagi exit/reposisi (AnimatePresence
+            // popLayout + layout animation) bisa numpuk di atas card baru sehingga klik
+            // sering miss / kena elemen yang salah. Menjadikan seluruh card sebagai satu
+            // link menghilangkan masalah target klik kecil ini sekaligus.
+            <motion.a
               layout
               key={project.title}
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.4 }}
-              className={`${project.size} group relative overflow-hidden rounded-[2.5rem] bg-[#0A0A0A] border border-white/5 h-[450px]`}
+              className={`${project.size} group relative block overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-[#0A0A0A] border border-white/5 h-[380px] md:h-[450px] cursor-pointer`}
             >
               <div className="absolute inset-0 z-0 pointer-events-none">
                 <Image 
@@ -168,31 +178,25 @@ export default function Portfolio() {
                   alt={project.title}
                   fill
                   className="object-cover opacity-30 group-hover:scale-105 group-hover:opacity-50 transition-all duration-700"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-10" />
               </div>
 
-              <div className="relative h-full p-8 flex flex-col justify-between z-20 pointer-events-none">
-                <div className="flex justify-between items-start pointer-events-auto">
+              <div className="relative h-full p-6 md:p-8 flex flex-col justify-between z-20 pointer-events-none">
+                <div className="flex justify-between items-start">
                   <div className="p-3 rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 text-blue-400">
                     {project.icon}
                   </div>
-                  <motion.a 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    href={project.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="p-3 rounded-full bg-white text-black translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all"
-                  >
+                  {/* Sekarang cuma indikator visual, bukan target klik terpisah lagi */}
+                  <div className="p-3 rounded-full bg-white text-black opacity-100 translate-y-0 md:opacity-0 md:translate-y-[-10px] md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all">
                     <ExternalLink size={18} />
-                  </motion.a>
+                  </div>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-2 block">{project.category}</span>
-                  <h3 className="text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-blue-400 transition-colors duration-300">{project.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed max-w-xs opacity-0 group-hover:opacity-100 transition-all duration-500">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-blue-400 transition-colors duration-300">{project.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed max-w-xs opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500">
                     {project.desc}
                   </p>
                   {project.isYoutube && (
@@ -202,32 +206,32 @@ export default function Portfolio() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </motion.a>
           ))}
         </AnimatePresence>
       </motion.div>
 
-      <div className="mt-32 w-full">
+      <div className="mt-24 md:mt-32 w-full">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[3rem] bg-blue-600 p-12 md:p-24 flex flex-col items-center text-center group"
+          viewport={{ once: true, amount: 0.3 }}
+          className="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-blue-600 p-8 sm:p-12 md:p-24 flex flex-col items-center text-center group"
         >
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-7xl font-bold text-white tracking-tighter leading-none mb-10">
+            <h2 className="text-3xl sm:text-4xl md:text-7xl font-bold text-white tracking-tighter leading-[1.05] md:leading-none mb-8 md:mb-10">
               READY TO BUILD YOUR <br className="hidden md:block" /> NEXT BIG THING?
             </h2>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full sm:w-auto">
               <motion.a 
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
                 href="https://wa.me/+6285777126038?text=Saya%20tertarik%20menggunakan%20jasa%20VanzzDigital,%20bolehkah%20saya%20bertanya%20lebih%20lanjut%3F" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center justify-center gap-3 bg-white text-black px-10 py-5 rounded-full font-bold text-lg shadow-2xl transition-all group/btn"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white text-black px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl transition-all group/btn"
               >
-                <MessageCircle size={24} className="group-hover/btn:rotate-12 transition-transform" /> 
+                <MessageCircle size={22} className="group-hover/btn:rotate-12 transition-transform" /> 
                 WhatsApp Me
               </motion.a>
               <motion.a 
@@ -236,9 +240,9 @@ export default function Portfolio() {
                 href="https://t.me/vanzz" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center justify-center gap-3 bg-black text-white px-10 py-5 rounded-full font-bold text-lg shadow-2xl transition-all group/btn"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-black text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl transition-all group/btn"
               >
-                <Send size={24} className="group-hover/btn:-translate-y-1 group-hover/btn:translate-x-1 transition-transform" /> 
+                <Send size={22} className="group-hover/btn:-translate-y-1 group-hover/btn:translate-x-1 transition-transform" /> 
                 Telegram Chat
               </motion.a>
             </div>

@@ -9,7 +9,9 @@ export default function Counter({ value, direction = "up" }: { value: number, di
     damping: 30,
     stiffness: 100,
   });
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  // FIX: margin "-100px" gagal trigger di viewport mobile yang pendek.
+  // amount: 0.3 -> animasi jalan begitu 30% elemen terlihat, konsisten di semua device.
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   useEffect(() => {
     if (isInView) {
@@ -18,7 +20,6 @@ export default function Counter({ value, direction = "up" }: { value: number, di
   }, [motionValue, isInView, value]);
 
   useEffect(() => {
-    // Tambahkan parameter type (latest: number) di sini
     return springValue.on("change", (latest: number) => {
       if (ref.current) {
         ref.current.textContent = Intl.NumberFormat("en-US").format(
